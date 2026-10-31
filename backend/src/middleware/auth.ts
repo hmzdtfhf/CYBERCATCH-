@@ -1,0 +1,2 @@
+import {Request,Response,NextFunction} from 'express'; import {env} from '../utils/env.js';
+export function requireAdmin(req:Request,res:Response,next:NextFunction){const token=req.header('x-demo-token')||req.header('authorization')?.replace('Bearer ','');if(token!==env.ADMIN_API_TOKEN&&!(env.AWS_DEMO_MODE&&token==='local-demo'))return res.status(401).json({message:'Administrative authentication required'});next()}

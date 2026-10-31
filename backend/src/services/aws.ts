@@ -1,0 +1,5 @@
+import {EC2Client,DescribeInstancesCommand,StartInstancesCommand,StopInstancesCommand} from '@aws-sdk/client-ec2';import {allowedIds,env} from '../utils/env.js';
+const ec2=new EC2Client({region:env.AWS_REGION}); const demo={id:'lab-instance',state:'stopped',type:'t3.micro',privateIp:'10.0.2.15'};
+function allowed(id:string){if(!allowedIds.includes(id))throw new Error('Instance is not in the configured lab allowlist');}
+export async function instances(){if(env.AWS_DEMO_MODE)return {mode:'demo',instances:[demo]};const r=await ec2.send(new DescribeInstancesCommand({InstanceIds:allowedIds}));return {mode:'live',instances:(r.Reservations||[]).flatMap(x=>x.Instances||[]).map(x=>({id:x.InstanceId,state:x.State?.Name||'unknown',type:x.InstanceType,privateIp:x.PrivateIpAddress}))};}
+export async function change(id:string,action:'start'|'stop'){allowed(id);if(env.AWS_DEMO_MODE){demo.state=action==='start'?'running':'stopped';return {mode:'demo',instance:demo};}if(action==='start')await ec2.send(new StartInstancesCommand({InstanceIds:[id]}));else await ec2.send(new StopInstancesCommand({InstanceIds:[id]}));return {mode:'live',accepted:true};}

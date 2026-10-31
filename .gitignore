@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+terraform.tfstate*
+.terraform/
+*.pem
+*.key
+aws-credentials*
+dvwa/configuration/config.inc.php
+coverage/
